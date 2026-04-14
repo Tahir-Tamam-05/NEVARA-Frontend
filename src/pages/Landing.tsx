@@ -3,16 +3,27 @@ import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/nivara-ring-logo.png";
 import heroVideo from "@/assets/hero.mp4";
+import heroFallback from "@/assets/hero-fallback.png";
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
     };
+
+    // Check for mobile screen size
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
 
   return (
@@ -57,16 +68,25 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 w-full border-b border-gray-100 flex flex-col justify-end min-h-[85vh] overflow-hidden">
-        {/* Background Video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="hidden md:block absolute inset-0 w-full h-full object-cover brightness-100 contrast-110 saturate-95 z-0"
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
+        {/* Background Layer (Conditionally Rendered) */}
+        {!isMobile ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={heroFallback}
+            className="absolute inset-0 w-full h-full object-cover brightness-100 contrast-110 saturate-95 z-0"
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src={heroFallback}
+            alt="Hero Background"
+            className="absolute inset-0 w-full h-full object-cover brightness-100 contrast-110 saturate-95 z-0"
+          />
+        )}
 
         {/* Layered Overlay System */}
         <div
